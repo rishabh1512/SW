@@ -1,23 +1,30 @@
 /*Service Worker Events*/
+const version = 1;
+const staticName = `staticCache-${version}`;
+const dynamicName = `dynamicache`;
+const fontName = `fontCache`;
+const imgName = `imagename`;
+
+let assets = ['/','/index.html','/js/index.js','/css/index.css'];
+
 self.addEventListener('install',(evt) =>{
-    /*Install the changes without keep it in wait state*/
-    //self.skipWaiting();
-    //Wait until promise event get resolved
     evt.waitUntil(
-        Promise.resolve().then(() =>{
-            console.log("Event waitUntil triggered")
-        }).then(() =>{
-            console.log("Service worker installed");
-        })
+       caches.open(staticName).then((cache) =>{
+            cache.addAll(assets).then(() =>{
+                console.log(`${staticName} assests updated`);
+            })
+       })
     )
 })
 
-self.addEventListener('active',(evt) =>{
-    console.log("Service worker active");
-    //Claim new changes 
-    clients.claim.then(() =>{
-        console.log("Event from claim")
-    })
+self.addEventListener('activate',(evt) =>{
+    evt.waitUntil( 
+        caches.keys().then((keys) => {
+            return Promise.all(
+                keys.filter((key) => key != staticName).map(key => caches.delete(key))
+            )
+        })
+    )
 })
 
 self.addEventListener('fetch',(evt) =>{
