@@ -1,5 +1,5 @@
 /*Service Worker Events*/
-const version = 1;
+const version = 9;
 const staticName = `staticCache-${version}`;
 const dynamicName = `dynamicache`;
 const fontName = `fontCache`;
@@ -35,14 +35,21 @@ self.addEventListener('fetch',(evt) =>{
                         cache.put(evt.request,fetchRes.clone())
                         return fetchRes;
                     }
-                )
+                ).catch(() =>{
+                    return fetch(evt.request);
+                })
             }).catch(() => {
                 /*Add a fallback page or error*/
+                return fetch(evt.request);
             })
         }
     ))
 })
 
-self.addEventListener('message',(evt) =>{
-    console.log("message from web page");
+self.addEventListener('message',async (evt) =>{
+    const {data} = evt;
+    const {id} = evt.source;
+    const client = await clients.get(id);
+    data.res = "Hii from service worker";
+    return client.postMessage(data);
 })
