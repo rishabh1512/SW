@@ -5,7 +5,7 @@ const dynamicName = `dynamicache`;
 const fontName = `fontCache`;
 const imgName = `imagename`;
 
-let assets = ['/','/index.html','/js/index.js','/css/index.css'];
+let assets = ['/index.html','/js/index.js','/css/index.css'];
 
 self.addEventListener('install',(evt) =>{
     evt.waitUntil(
@@ -28,7 +28,17 @@ self.addEventListener('activate',(evt) =>{
 })
 
 self.addEventListener('fetch',(evt) =>{
-    console.log("doing a fetch call or http request",evt.request);
+    evt.respondWith(caches.match(evt.request).then(
+        cache => {return cache || fetch(evt.request).then((fetchRes) =>{
+                caches.open(staticName).then(
+                    (cache) => {
+                        cache.put(evt.request,fetchRes.clone())
+                        return fetchRes;
+                    }
+                )
+            }
+        )}
+    ))
 })
 
 self.addEventListener('message',(evt) =>{
