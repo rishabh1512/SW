@@ -36,8 +36,10 @@ self.addEventListener('fetch',(evt) =>{
                         return fetchRes;
                     }
                 )
-            }
-        )}
+            }).catch(() => {
+                /*Add a fallback page or error*/
+            })
+        }
     ))
 })
 
