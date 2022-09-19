@@ -14,6 +14,7 @@ const APP = {
             //Check service worker already registered or not    
             if(navigator.serviceWorker.controller){
                 console.info("service worker already registered");
+                navigator.serviceWorker.addEventListener('message',APP.onMsg);
             }
 
             //When new sw get registered or sw get changed
@@ -22,7 +23,19 @@ const APP = {
             };
 
         }
+    },
+    sendMsg: function(){
+        const btnNode = document.getElementById('message');
+        btnNode.addEventListener('click',(evt) => {
+            if(navigator.serviceWorker.controller){
+                navigator.serviceWorker.controller.postMessage({ res : "Hii" });
+            }
+        })
+    },
+    onMsg: function({data}){
+        console.log("Data recevied from service worker::",data);
     }
 }
 
 window.addEventListener('load',APP.init());
+APP.sendMsg();
